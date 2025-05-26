@@ -1,4 +1,3 @@
-from re import L
 from finite_automaton import EPSILON, FiniteAutomaton, Transictions
 
 
