@@ -11,18 +11,8 @@ def find_epsilon_closures(automaton: FiniteAutomaton) -> dict[str, set[str]]:
     só usando uma BFS (em grafos onde há vários estados inalcançáveis)
     """
 
-    dist_matrix = [
-        [False for _ in range(len(automaton.states))]
-        for _ in range(len(automaton.states))
-    ]
-
     states = list(automaton.states)
     state_to_idx = {state: i for i, state in enumerate(states)}
-
-    for u in automaton.states:
-        dist_matrix[state_to_idx[u]][state_to_idx[u]] = True
-        for v in automaton.transictions[u].get(EPSILON, []):
-            dist_matrix[state_to_idx[u]][state_to_idx[v]] = True
 
     dp = [
         [False for _ in range(len(automaton.states))]
@@ -30,11 +20,14 @@ def find_epsilon_closures(automaton: FiniteAutomaton) -> dict[str, set[str]]:
     ]
     for u in automaton.states:
         dp[state_to_idx[u]][state_to_idx[u]] = True
+        for v in automaton.transictions[u].get(EPSILON, []):
+            dp[state_to_idx[u]][state_to_idx[v]] = True
+
 
     for k in range(len(automaton.states)):
         for u in range(len(automaton.states)):
             for v in range(len(automaton.states)):
-                dp[u][v] = dp[u][v] or (dist_matrix[u][k] and dist_matrix[k][v])
+                dp[u][v] = dp[u][v] or (dp[u][k] and dp[k][v])
 
     epsilon_closure: dict[str, set[str]] = {state: set() for state in automaton.states}
     for u in range(len(automaton.states)):
