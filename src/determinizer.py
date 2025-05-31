@@ -1,3 +1,5 @@
+from collections import deque
+
 from finite_automaton import EPSILON, FiniteAutomaton, Transictions
 
 
@@ -11,29 +13,38 @@ def find_epsilon_closures(automaton: FiniteAutomaton) -> dict[str, set[str]]:
     só usando uma BFS (em grafos onde há vários estados inalcançáveis)
     """
 
-    states = list(automaton.states)
-    state_to_idx = {state: i for i, state in enumerate(states)}
+    queue = deque([automaton.initial_state])
+    reachable = {automaton.initial_state}
 
-    dp = [
-        [False for _ in range(len(automaton.states))]
-        for _ in range(len(automaton.states))
-    ]
-    for u in automaton.states:
-        dp[state_to_idx[u]][state_to_idx[u]] = True
-        for v in automaton.transictions[u].get(EPSILON, []):
-            dp[state_to_idx[u]][state_to_idx[v]] = True
+    epsilon_closure = {}
 
+    while len(queue) > 0:
+        cur = queue.pop()
 
-    for k in range(len(automaton.states)):
-        for u in range(len(automaton.states)):
-            for v in range(len(automaton.states)):
-                dp[u][v] = dp[u][v] or (dp[u][k] and dp[k][v])
+        for states in automaton.transictions[cur].values():
+            for state in states:
+                if state not in reachable:
+                    reachable.add(state)
+                    queue.appendleft(state)
 
-    epsilon_closure: dict[str, set[str]] = {state: set() for state in automaton.states}
-    for u in range(len(automaton.states)):
-        for v in range(len(automaton.states)):
-            if dp[u][v]:
-                epsilon_closure[states[u]].add(states[v])
+    for state in reachable:
+        queue = deque([state])
+
+        closure = {state}
+        while len(queue) > 0:
+            cur = queue.pop()
+
+            if EPSILON not in automaton.transictions[cur]:
+                continue
+
+            for st in automaton.transictions[cur][EPSILON]:
+                if st in closure:
+                    continue
+                closure.add(st)
+                queue.append(st)
+
+        epsilon_closure[state] = closure
+
     return epsilon_closure
 
 
