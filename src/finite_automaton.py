@@ -114,3 +114,38 @@ class FiniteAutomaton:
         return FiniteAutomaton(
             states, alphabet, transictions, start_state, final_states
         )
+
+    @staticmethod
+    def join_automatons(
+        finite_automatons: list["FiniteAutomaton"],
+    ) -> "FiniteAutomaton":
+        new_states = {"q0"}
+        start_state = "q0"
+        final_states = set()
+        new_transictions: Transictions = {"q0": {EPSILON: []}}
+        new_alphabet = set()
+
+        for automaton in finite_automatons:
+            state_map = {}
+            new_alphabet |= automaton.alphabet
+
+            for state in automaton.states:
+                state_map[state] = f"q{len(new_states)}"
+                new_states.add(state_map[state])
+                new_transictions[state_map[state]] = {}
+
+            final_states |= {state_map[state] for state in automaton.final_states}
+
+            for state, letter_dict in automaton.transictions.items():
+                for letter, target_states in letter_dict.items():
+                    if letter not in new_transictions[state_map[state]]:
+                        new_transictions[state_map[state]][letter] = []
+                    for target in target_states:
+                        new_transictions[state_map[state]][letter].append(
+                            state_map[target]
+                        )
+
+            new_transictions["q0"][EPSILON].append(state_map[automaton.initial_state])
+        return FiniteAutomaton(
+            new_states, new_alphabet, new_transictions, start_state, final_states
+        )
