@@ -52,7 +52,9 @@ def format_states(states: set[str]) -> str:
     return f"{{{','.join(sorted(states))}}}"
 
 
-def determinize(automaton: FiniteAutomaton) -> FiniteAutomaton:
+def determinize(
+    automaton: FiniteAutomaton,
+) -> FiniteAutomaton:
     """
     Realiza a determinização do autômato.
     """
@@ -65,6 +67,7 @@ def determinize(automaton: FiniteAutomaton) -> FiniteAutomaton:
     st = [epsilon_closure[automaton.initial_state]]
     initial_state = format_states(epsilon_closure[automaton.initial_state])
     final_states = set()
+    final_states_to_pattern: dict[str, list[str]] = {}
 
     while len(st) > 0:
         cur_states = st.pop()
@@ -79,6 +82,14 @@ def determinize(automaton: FiniteAutomaton) -> FiniteAutomaton:
         for state in cur_states:
             if state in automaton.final_states:
                 final_states.add(formatted_states)
+                if (
+                    formatted_states not in final_states_to_pattern
+                    and automaton.final_states_to_pattern is not None
+                ):
+                    final_states_to_pattern[formatted_states] = set()
+                final_states_to_pattern[
+                    formatted_states
+                ] |= automaton.final_states_to_pattern[state]
 
             for letter in automaton.transictions[state]:
                 if letter == EPSILON:
@@ -103,6 +114,7 @@ def determinize(automaton: FiniteAutomaton) -> FiniteAutomaton:
         new_transictions,
         initial_state,
         final_states,
+        final_states_to_pattern,
     )
 
 

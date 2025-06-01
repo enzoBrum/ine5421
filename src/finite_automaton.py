@@ -29,6 +29,13 @@ class FiniteAutomaton:
     initial_state: str
     final_states: set[str]
 
+    # Mapeia cada estado final à uma lista de possíveis
+    # padrões à qual esse estado final pertence.
+    #
+    # e.g: id: [a-zA-Z]
+    #      o estado final desse automato teria como pattern o `id`.
+    final_states_to_pattern: dict[str, set[str]] | None
+
     def __init__(
         self,
         states: set[str],
@@ -36,12 +43,14 @@ class FiniteAutomaton:
         transictions: Transictions,
         initial_state: str,
         final_states: str,
+        final_states_to_pattern: dict[str, set[str]] | None = None,
     ):
         self.states = states
         self.alphabet = alphabet
         self.transictions = transictions
         self.initial_state = initial_state
         self.final_states = final_states
+        self.final_states_to_pattern = final_states_to_pattern
 
     @staticmethod
     def dumps(finite_automaton: "FiniteAutomaton") -> str:
@@ -117,7 +126,7 @@ class FiniteAutomaton:
 
     @staticmethod
     def join_automatons(
-        finite_automatons: list["FiniteAutomaton"],
+        finite_automatons: dict[str, "FiniteAutomaton"],
     ) -> "FiniteAutomaton":
         new_states = {"q0"}
         start_state = "q0"
@@ -125,7 +134,9 @@ class FiniteAutomaton:
         new_transictions: Transictions = {"q0": {EPSILON: []}}
         new_alphabet = set()
 
-        for automaton in finite_automatons:
+        final_states_to_pattern: dict[str, set[str]] = {}
+
+        for name, automaton in finite_automatons.items():
             state_map = {}
             new_alphabet |= automaton.alphabet
 
@@ -135,6 +146,9 @@ class FiniteAutomaton:
                 new_transictions[state_map[state]] = {}
 
             final_states |= {state_map[state] for state in automaton.final_states}
+            final_states_to_pattern |= {
+                state_map[state]: {name} for state in automaton.final_states
+            }
 
             for state, letter_dict in automaton.transictions.items():
                 for letter, target_states in letter_dict.items():
@@ -147,5 +161,10 @@ class FiniteAutomaton:
 
             new_transictions["q0"][EPSILON].append(state_map[automaton.initial_state])
         return FiniteAutomaton(
-            new_states, new_alphabet, new_transictions, start_state, final_states
+            new_states,
+            new_alphabet,
+            new_transictions,
+            start_state,
+            final_states,
+            final_states_to_pattern,
         )
