@@ -98,7 +98,11 @@ def determinize(automaton: FiniteAutomaton) -> FiniteAutomaton:
             st.append(transictions[letter])
 
     return FiniteAutomaton(
-        new_states, automaton.alphabet, new_transictions, initial_state, final_states
+        new_states,
+        automaton.alphabet - {EPSILON},
+        new_transictions,
+        initial_state,
+        final_states,
     )
 
 
