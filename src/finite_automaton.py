@@ -9,7 +9,7 @@ from generateAFN import ThompsonAFN
 # Mapeia um estado à um dicionário cuja chave é uma letra do alfabeto e valor é a lista de
 # estados alcançados quando se utiliza essa letra.
 #
-# e.g: transictions["0"] = {"a": ["0", "1"]} -> A partir do estado "0", é possível alcançar os estados "0" e "1" utilizando a letra "a"
+# e.g: transitions["0"] = {"a": ["0", "1"]} -> A partir do estado "0", é possível alcançar os estados "0" e "1" utilizando a letra "a"
 Transictions = dict[str, dict[str, list[str]]]
 
 # Símbolo usado para representar o vazio.
@@ -24,7 +24,7 @@ class FiniteAutomaton:
     states: set[str]
     alphabet: set[str]
 
-    transictions: Transictions
+    transitions: Transictions
 
     initial_state: str
     final_states: set[str]
@@ -40,14 +40,14 @@ class FiniteAutomaton:
         self,
         states: set[str],
         alphabet: set[str],
-        transictions: Transictions,
+        transitions: Transictions,
         initial_state: str,
         final_states: str,
         final_states_to_pattern: dict[str, set[str]] | None = None,
     ):
         self.states = states
         self.alphabet = alphabet
-        self.transictions = transictions
+        self.transitions = transitions
         self.initial_state = initial_state
         self.final_states = final_states
         self.final_states_to_pattern = final_states_to_pattern
@@ -55,6 +55,12 @@ class FiniteAutomaton:
     @staticmethod
     def dumps(finite_automaton: "FiniteAutomaton") -> str:
         st_map = {state: i for i, state in enumerate(sorted(finite_automaton.states))}
+        if finite_automaton.final_states_to_pattern:
+            for st in finite_automaton.final_states:
+                st_map[st] = f"{next(iter(finite_automaton.final_states_to_pattern[st]))}__q{st_map[st]}"
+
+
+        final_st_map = {}
         ret = (
             f"{len(finite_automaton.states)}\n"
             f"{st_map[finite_automaton.initial_state]}\n"
@@ -62,7 +68,7 @@ class FiniteAutomaton:
             f"{','.join(sorted(finite_automaton.alphabet))}\n"
         )
 
-        for origin_state, letter_dict in finite_automaton.transictions.items():
+        for origin_state, letter_dict in finite_automaton.transitions.items():
             for letter, target_states in letter_dict.items():
                 for target in target_states:
                     ret += f"{st_map[origin_state]},{letter},{st_map[target]}\n"
@@ -79,22 +85,33 @@ class FiniteAutomaton:
         initial_state = lines[1].strip()
         final_states = {x.strip() for x in lines[2].split(",")}
         alphabet = {x.strip() for x in lines[3].split(",")}
-        transictions: Transictions = {}
+        transitions: Transictions = {}
         states = set()
+        final_states_to_pattern = {}
+        
+        for st in final_states:
+            if "__" in st:
+                final_states_to_pattern[st] = {st[:st.find("__")]}
+            else:
+                final_states_to_pattern[st] = {st}
 
         for line in lines[4:]:
             origin, letter, target = [x.strip() for x in line.split(",")]
             states.add(origin)
             states.add(target)
 
-            if origin not in transictions:
-                transictions[origin] = {}
-            if letter not in transictions[origin]:
-                transictions[origin][letter] = []
-            transictions[origin][letter].append(target)
+            if origin not in transitions:
+                transitions[origin] = {}
+            if letter not in transitions[origin]:
+                transitions[origin][letter] = []
+            transitions[origin][letter].append(target)
+            
+        for state in states:
+            if state not in transitions:
+                transitions[state] = {}
 
         return FiniteAutomaton(
-            states, alphabet, transictions, initial_state, final_states
+            states, alphabet, transitions, initial_state, final_states, final_states_to_pattern
         )
 
     @staticmethod
@@ -104,9 +121,9 @@ class FiniteAutomaton:
         states = {start_state, afn.final}
         alphabet = set()
 
-        transictions: Transictions = deepcopy(afn.transitions)
+        transitions: Transictions = deepcopy(afn.transitions)
 
-        for state, letter_dict in transictions.items():
+        for state, letter_dict in transitions.items():
             states.add(state)
             for letter, val in letter_dict.items():
                 alphabet.add(letter)
@@ -117,11 +134,11 @@ class FiniteAutomaton:
                     states.add(v)
 
         for state in states:
-            if state not in transictions:
-                transictions[state] = {}
+            if state not in transitions:
+                transitions[state] = {}
 
         return FiniteAutomaton(
-            states, alphabet, transictions, start_state, final_states
+            states, alphabet, transitions, start_state, final_states
         )
 
     @staticmethod
@@ -131,7 +148,7 @@ class FiniteAutomaton:
         new_states = {"q0"}
         start_state = "q0"
         final_states = set()
-        new_transictions: Transictions = {"q0": {EPSILON: []}}
+        new_transitions: Transictions = {"q0": {EPSILON: []}}
         new_alphabet = set()
 
         final_states_to_pattern: dict[str, set[str]] = {}
@@ -143,27 +160,27 @@ class FiniteAutomaton:
             for state in automaton.states:
                 state_map[state] = f"q{len(new_states)}"
                 new_states.add(state_map[state])
-                new_transictions[state_map[state]] = {}
+                new_transitions[state_map[state]] = {}
 
             final_states |= {state_map[state] for state in automaton.final_states}
             final_states_to_pattern |= {
                 state_map[state]: {name} for state in automaton.final_states
             }
 
-            for state, letter_dict in automaton.transictions.items():
+            for state, letter_dict in automaton.transitions.items():
                 for letter, target_states in letter_dict.items():
-                    if letter not in new_transictions[state_map[state]]:
-                        new_transictions[state_map[state]][letter] = []
+                    if letter not in new_transitions[state_map[state]]:
+                        new_transitions[state_map[state]][letter] = []
                     for target in target_states:
-                        new_transictions[state_map[state]][letter].append(
+                        new_transitions[state_map[state]][letter].append(
                             state_map[target]
                         )
 
-            new_transictions["q0"][EPSILON].append(state_map[automaton.initial_state])
+            new_transitions["q0"][EPSILON].append(state_map[automaton.initial_state])
         return FiniteAutomaton(
             new_states,
             new_alphabet,
-            new_transictions,
+            new_transitions,
             start_state,
             final_states,
             final_states_to_pattern,

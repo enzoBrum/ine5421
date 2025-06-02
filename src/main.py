@@ -1,57 +1,30 @@
 from determinizer import determinize
-from draw import desenhar_automato
 from finite_automaton import FiniteAutomaton
 from generateAFN import ThompsonAFN
 from transformER import RegEx
 
-# regExpressões fornecidas
-regExpressoes = {
-    # "id": "[a-zA-Z]([a-zA-Z]|[0-9])*",
-    # "num": "[1-9]([0-9])*|0",
-    "er1": "a?(a|b)+",
-    "er2": "(a|b)*",
-}
+# Arquivo com as expressões regulares
+FILE_REGEX = f"input-interface-projeto.txt"
 
-automatos: dict[str, FiniteAutomaton] = {}
+# Arquivo onde a tabela de análise léxica será escrita.
+FILE_OUTPUT = "output-interface-projeto.txt"
 
-# Resultado
-for nome, rawRegex in regExpressoes.items():
-    print(f"nome -> {nome}\nrawRegex -> {rawRegex}")
+with open(FILE_REGEX, "r") as f:
+    lines = [line.strip().split(":", 1) for line in f.readlines() if line.strip()]
+    regexes = {line[0].strip(): line[1].strip() for line in lines if len(line) > 1}
 
-    regex = RegEx(rawRegex)
-
-    print("Postfix ->", regex.transformedRegEx)
+automatos = {}
+for nome, rawRegex in regexes.items():
+    nome = nome.strip()
+    regex = RegEx(rawRegex.strip())
     afn = FiniteAutomaton.from_thompson_afn(ThompsonAFN(regex.transformedRegEx))
     automatos[nome] = afn
-    desenhar_automato(
-        nome,
-        afn.transictions,
-        afn.initial_state,
-        afn.final_states,
-    )
 
 automato = FiniteAutomaton.join_automatons(automatos)
-
-desenhar_automato(
-    "nao-determinizado",
-    automato.transictions,
-    automato.initial_state,
-    automato.final_states,
-)
-
 determinized_automato = determinize(automato)
-print(FiniteAutomaton.dumps(determinized_automato))
+out=FiniteAutomaton.dumps(determinized_automato)
 
-desenhar_automato(
-    "determinizado",
-    determinized_automato.transictions,
-    determinized_automato.initial_state,
-    determinized_automato.final_states,
-)
+print(out)
 
-print(
-    "\n".join(
-        f"{k} -> {','.join(v)}"
-        for k, v in determinized_automato.final_states_to_pattern.items()
-    )
-)
+with open(FILE_OUTPUT, "w") as f:
+    f.write(out)

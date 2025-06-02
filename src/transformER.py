@@ -8,14 +8,13 @@ class RegEx:
     def transform(self, rawRegEx):
         # Procura classes [a-d] e expande elas como (a|b|c|d)
         valid, expandedRegEx = self.expandClasses(rawRegEx)
-        #print('Expanded:', expandedRegEx)
+        
         if not(valid):
             print('Invalid Regular Expression')
             return
 
         # Adiciona oi simbolo de concatenaçao '.'
         valid, concatened = self.addConcat(expandedRegEx)
-        #print('Concat: ', concatened )
 
         if not(valid):
             print('Invalid Regular Expression')
@@ -24,7 +23,6 @@ class RegEx:
         # Tranforma da notação infixada para pós-fixada utilizando
         # Shunting Yard
         valid, postFixed = self.postfix(concatened)
-        #print('postFixed:', postFixed)
 
         if not(valid):
             print('Invalid Regular Expression')

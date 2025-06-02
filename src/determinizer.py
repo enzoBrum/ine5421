@@ -6,11 +6,6 @@ from finite_automaton import EPSILON, FiniteAutomaton, Transictions
 def find_epsilon_closures(automaton: FiniteAutomaton) -> dict[str, set[str]]:
     """
     Acha o epsilon fecho do estado desejado.
-
-    O(V^3).
-
-    Poderia ser melhor com heurísticas como https://cp-algorithms.com/graph/strongly-connected-components.html ou
-    só usando uma BFS (em grafos onde há vários estados inalcançáveis)
     """
 
     queue = deque([automaton.initial_state])
@@ -21,7 +16,7 @@ def find_epsilon_closures(automaton: FiniteAutomaton) -> dict[str, set[str]]:
     while len(queue) > 0:
         cur = queue.pop()
 
-        for states in automaton.transictions[cur].values():
+        for states in automaton.transitions[cur].values():
             for state in states:
                 if state not in reachable:
                     reachable.add(state)
@@ -34,10 +29,10 @@ def find_epsilon_closures(automaton: FiniteAutomaton) -> dict[str, set[str]]:
         while len(queue) > 0:
             cur = queue.pop()
 
-            if EPSILON not in automaton.transictions[cur]:
+            if EPSILON not in automaton.transitions[cur]:
                 continue
 
-            for st in automaton.transictions[cur][EPSILON]:
+            for st in automaton.transitions[cur][EPSILON]:
                 if st in closure:
                     continue
                 closure.add(st)
@@ -59,7 +54,7 @@ def determinize(
     Realiza a determinização do autômato.
     """
 
-    new_transictions: Transictions = {}
+    new_transitions: Transictions = {}
     new_states = set()
 
     epsilon_closure = find_epsilon_closures(automaton)
@@ -78,50 +73,41 @@ def determinize(
             continue
         new_states.add(formatted_states)
 
-        transictions: dict[str, set[str]] = {}
+        transitions: dict[str, set[str]] = {}
         for state in cur_states:
             if state in automaton.final_states:
                 final_states.add(formatted_states)
-                if (
-                    formatted_states not in final_states_to_pattern
-                    and automaton.final_states_to_pattern is not None
-                ):
-                    final_states_to_pattern[formatted_states] = set()
-                final_states_to_pattern[
-                    formatted_states
-                ] |= automaton.final_states_to_pattern[state]
+                
+                if automaton.final_states_to_pattern is not None:
+                    if formatted_states not in final_states_to_pattern:
+                        final_states_to_pattern[formatted_states] = set()
+                        final_states_to_pattern[
+                            formatted_states
+                        ] |= automaton.final_states_to_pattern[state]
 
-            for letter in automaton.transictions[state]:
+            for letter in automaton.transitions[state]:
                 if letter == EPSILON:
                     continue
 
-                if letter not in transictions:
-                    transictions[letter] = set()
+                if letter not in transitions:
+                    transitions[letter] = set()
 
-                for other_state in automaton.transictions[state][letter]:
-                    transictions[letter] |= epsilon_closure[other_state]
+                for other_state in automaton.transitions[state][letter]:
+                    transitions[letter] |= epsilon_closure[other_state]
 
-        new_transictions[formatted_states] = {}
-        for letter in transictions:
-            formatted_target_states = format_states(transictions[letter])
+        new_transitions[formatted_states] = {}
+        for letter in transitions:
+            formatted_target_states = format_states(transitions[letter])
 
-            new_transictions[formatted_states][letter] = [formatted_target_states]
-            st.append(transictions[letter])
+            new_transitions[formatted_states][letter] = [formatted_target_states]
+            st.append(transitions[letter])
 
     return FiniteAutomaton(
         new_states,
         automaton.alphabet - {EPSILON},
-        new_transictions,
+        new_transitions,
         initial_state,
         final_states,
         final_states_to_pattern,
     )
 
-
-if __name__ == "__main__":
-    from sys import stdin
-
-    # automaton = FiniteAutomaton.loads(stdin.read())
-    with open("/home/erb/ufsc/INE5421/src/input") as f:
-        automaton = FiniteAutomaton.loads(f.read())
-    print(FiniteAutomaton.dumps(determinize(automaton)))

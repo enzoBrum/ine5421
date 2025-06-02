@@ -3,20 +3,19 @@ import os
 from graphviz import Digraph
 
 
-def desenhar_automato(nome, transicoes, start_state, end_states):
+def desenhar_automato(nome, transicoes, start_state, end_states, directory=''):
     # Garante que a pasta 'automatos/' exista
-    pasta = "automatos"
-    os.makedirs(pasta, exist_ok=True)
+    os.makedirs(directory, exist_ok=True)
 
     if isinstance(end_states, str):
         end_states = {end_states}
 
     # Nome do arquivo final
-    caminho_arquivo = os.path.join(pasta, f"automato_{nome}")
+    caminho_arquivo = os.path.join(directory, f"automato_{nome}")
 
     # Cria o grafo
     dot = Digraph(format="png")
-    dot.attr(rankdir="LR")  # Direção da esquerda para a direita
+    dot.attr(rankdir="LR") 
     dot.attr("node", shape="circle")
 
     dot.node("", shape="none")
