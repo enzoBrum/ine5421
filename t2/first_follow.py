@@ -6,6 +6,8 @@ productions = {
     'B': ['nB', '(S)', 't', 'f']
 }
 
+start_symbol = next(iter(productions)) # Get the start symbol dynamically
+
 non_terminals = list(productions.keys())
 terminals = set()
 first_sets = defaultdict(set)
@@ -52,7 +54,7 @@ def compute_follow(symbol, visited=set()):
         return follow_sets[symbol]
 
     visited.add(symbol)
-    if symbol == 'S':  # start symbol
+    if symbol == start_symbol:  # start symbol
         follow_sets[symbol].add('$')
 
     for A, rules in productions.items():
