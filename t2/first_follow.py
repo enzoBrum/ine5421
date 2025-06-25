@@ -1,10 +1,32 @@
 from collections import defaultdict
+import re
 
+def tokenize_production(production):
+    # Tokenize using regex: match identifiers (letters/digits), or symbols
+    # Symbols like '+', '*', '(', ')' are matched separately
+    return re.findall(r'[A-Za-z_][A-Za-z_0-9]*|[^\sA-Za-z_0-9]', production)
+
+productions = {}
+
+with open('input_grammar.txt', 'r') as file:
+    for line in file:
+        if not line.strip():
+            continue  # Skip empty lines
+        lhs, rhs = line.strip().split('::=')
+        lhs = lhs.strip()
+        rhs_alternatives = rhs.strip().split('|')
+        rhs_parsed = [tokenize_production(alt.strip()) for alt in rhs_alternatives]
+        productions[lhs] = rhs_parsed
+
+'''
 productions = {
-    'S': ['SvA', 'A'],
-    'A': ['AˆB', 'B'],
-    'B': ['nB', '(S)', 't', 'f']
+    
+    'E': [['E', '+', 'T'], ['T']],
+    'T': [['T', '*', 'F'], ['F']],
+    'F': [['(', 'E', ')'], ['id']]
+
 }
+'''
 
 start_symbol = next(iter(productions)) # Get the start symbol dynamically
 
