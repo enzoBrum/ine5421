@@ -1,10 +1,51 @@
 from collections import defaultdict
-import re
+
 
 def tokenize_production(production):
-    # Tokenize using regex: match identifiers (letters/digits), or symbols
-    # Symbols like '+', '*', '(', ')' are matched separately
-    return re.findall(r'[A-Za-z_][A-Za-z_0-9]*|[^\sA-Za-z_0-9]', production)
+    tokens = []
+    i = 0
+    while i < len(production):
+        c = production[i]
+
+        # Skip whitespace
+        if c.isspace():
+            i += 1
+            continue
+
+        # Special operator ::= (must come before ':' or '=')
+        if production[i:i+3] == '::=':
+            tokens.append('::=')
+            i += 3
+
+        # One-character terminal symbols
+        elif c in '()+-=*;,':  # add/remove symbols as needed
+            tokens.append(c)
+            i += 1
+
+        # Terminal: lowercase sequences [a-z]+
+        elif c.islower():
+            start = i
+            while i < len(production) and production[i].islower():
+                i += 1
+            tokens.append(production[start:i])
+
+        # Non-terminal: Uppercase identifier (e.g., E, T, Expr)
+        elif c.isupper():
+            start = i
+            while i < len(production) and (production[i].isalnum() or production[i] == '_'):
+                i += 1
+            tokens.append(production[start:i])
+
+        # Epsilon or placeholder
+        elif c == '#':
+            tokens.append('#')
+            i += 1
+
+        else:
+            raise ValueError(f"Unexpected character: {c}")
+
+    return tokens
+
 
 def compute_first(symbol: str, first_sets: dict[str, set[str]], terminal_symbols: set[str], productions: dict[str, list[list[str]]], visited: set[str]) -> set[str]:
     if symbol in terminal_symbols or symbol in '()':
@@ -79,11 +120,11 @@ def compute_follow(symbol: str, start_symbol: str, first_sets: dict[str, set[str
 
 if __name__ == "__main__":
     productions = {}
-
+    
     with open('input_grammar.txt', 'r') as file:
         for line in file:
             if not line.strip():
-                continue  # Skip empty lines
+                continue
             lhs, rhs = line.strip().split('::=')
             lhs = lhs.strip()
             rhs_alternatives = rhs.strip().split('|')
