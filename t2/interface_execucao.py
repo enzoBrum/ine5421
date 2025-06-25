@@ -1,4 +1,5 @@
 from slr_table import SlrTable
+from parser import parse
 
 # Caminho para o arquivo contendo a tabela SLR desejada.
 SLR_TABLE = "./slr_table.json"
@@ -10,4 +11,6 @@ with open(SLR_TABLE) as f:
     table = SlrTable.loads(f.read().strip())
     
 with open(TOKEN_LIST) as f:
-    token_list = f.read()
+    token_list = [x.strip() for x in f.readlines() if x.strip()]
+
+parse(table, token_list)

@@ -1,0 +1,9 @@
+<Hello;world, er1>
+<Bye;world, er2>
+<Hallo, Não reconhecido>
+<Bye;bye, er2>
+<Be;be, Não reconhecido>
+<abcd, Não reconhecido>
+<vrenowpq, Não reconhecido>
+<1234, Não reconhecido>
+<Hello;123, Não reconhecido>

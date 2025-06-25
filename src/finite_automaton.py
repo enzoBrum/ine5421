@@ -34,7 +34,7 @@ class FiniteAutomaton:
     #
     # e.g: id: [a-zA-Z]
     #      o estado final desse automato teria como pattern o `id`.
-    final_states_to_pattern: dict[str, set[str]] | None
+    final_states_to_pattern: dict[str, set[str]]
 
     def __init__(
         self,
@@ -43,7 +43,7 @@ class FiniteAutomaton:
         transitions: Transictions,
         initial_state: str,
         final_states: str,
-        final_states_to_pattern: dict[str, set[str]] | None = None,
+        final_states_to_pattern: dict[str, set[str]] = None,
     ):
         self.states = states
         self.alphabet = alphabet

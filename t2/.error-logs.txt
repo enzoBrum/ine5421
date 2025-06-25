@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/erb/ufsc/INE5421/t2/parser.py", line 20, in parse
+    if state.actions[cur].startswith('s'):
+       ~~~~~~~~~~~~~^^^^^
+KeyError: 'FOO'
