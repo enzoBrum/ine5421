@@ -1,2 +1,4 @@
 crie varNome = "Maria" ;
-crie varA = 1 - 2 ;
+crie varA = 1 - "Maria" ;
+crie varB = 1 - 100 ;
+crie varL = varA - varB ;

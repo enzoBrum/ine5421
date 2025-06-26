@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 
 from finite_automaton import FiniteAutomaton
 
+
 # Arquivo contendo a saída de main.py com a tabela de análise léxica.
 FILE_AUTOMATO = "output-interface-projeto.txt"
 
@@ -12,6 +13,13 @@ FILE_INPUT = "input.txt"
 FILE_SYMBOL_TABLE = "symbol_table.txt"
 FILE_TOKEN_LIST = "token_list.txt"
 
+parser = ArgumentParser()
+parser.add_argument("--file-automato", default=FILE_AUTOMATO)
+parser.add_argument("--file-input", default=FILE_INPUT)
+parser.add_argument("--file-symbol-table", default=FILE_SYMBOL_TABLE)
+parser.add_argument("--file-token-list", default=FILE_TOKEN_LIST)
+
+
 def classify(finite_automaton: FiniteAutomaton, word: str) -> str:
     state = finite_automaton.initial_state
     for ch in word:
@@ -21,11 +29,13 @@ def classify(finite_automaton: FiniteAutomaton, word: str) -> str:
         state = finite_automaton.transitions[state].get(ch, [None])[0]
         if state is None:
             break
-    return (
-        "Não reconhecido"
-        if state not in finite_automaton.final_states
-        else next(iter(finite_automaton.final_states_to_pattern[state]))
-    )
+
+    try:
+        return next(iter(finite_automaton.final_states_to_pattern[state]))
+    except:
+        print(f"Palavra inválida: {word}")
+        exit(0)
+
 
 def get_symbol_table(finite_automaton: FiniteAutomaton, words: list[str]) -> str:
     line_counter = 1
@@ -50,15 +60,15 @@ def get_symbol_table(finite_automaton: FiniteAutomaton, words: list[str]) -> str
 
         tokens.append(f"<{classification}, {added_token[att_value]['line']}>")
 
-
     return symbol_table, tokens
 
 
 if __name__ == "__main__":
-    with open(FILE_AUTOMATO, "r") as f:
+    args = parser.parse_args()
+    with open(args.file_automato, "r") as f:
         determinized_automato = FiniteAutomaton.loads(f.read())
 
-    with open(FILE_INPUT, "r") as f:
+    with open(args.file_input, "r") as f:
         words = [word for line in f for word in line.strip().split() if word]
 
     symbol_table, tokens = get_symbol_table(determinized_automato, words)
@@ -66,11 +76,17 @@ if __name__ == "__main__":
     symbol_table = "\n".join(symbol_table)
     tokens = "\n".join(tokens)
 
-    print_result = "====== Tabela de Símbolos ======\n" + symbol_table + "\n\n" + "====== Lista de Tokens ======\n" + tokens
+    print_result = (
+        "====== Tabela de Símbolos ======\n"
+        + symbol_table
+        + "\n\n"
+        + "====== Lista de Tokens ======\n"
+        + tokens
+    )
     print(print_result)
 
-    with open(FILE_SYMBOL_TABLE, "w") as f:
+    with open(args.file_symbol_table, "w") as f:
         f.write(symbol_table)
 
-    with open(FILE_TOKEN_LIST, "w") as f:
+    with open(args.file_token_list, "w") as f:
         f.write(tokens)
