@@ -4,6 +4,7 @@ from slr_table import SlrTable
 
 def parse(table: SlrTable, token_list: list[str]):
     token_types = [t.split(',')[0].strip()[1:] for t in token_list]
+    token_values = [t.split(',')[1].strip()[:-1] for t in token_list]
     
     if token_types[-1] != '$':
         token_types.append('$')
@@ -43,11 +44,16 @@ def parse(table: SlrTable, token_list: list[str]):
                 f.write(error)
 
             print(f"Erro durante o parsing! O lexema {cur} não é ação válida para o estado {s}.")
-            print(' '.join(token_types))
+            
+            for j in range(i):
+                token_values[j] = f"\033[32m{token_values[j]}\033[0m"
+            token_values[i] = f"\033[31m{token_values[i]}\033[0m"
+
+            print(' '.join(token_values))
             spaces = 0
             for j in range(i):
-                spaces += len(token_types[j]) + 1
-            print(f"\033[31m{'~'*spaces}{'^'*len(cur)}\033[0m")
+                spaces += len(token_values[j]) - 9 + 1
+            print(f"\033[31m{'~'*spaces}{'^'*(len(token_values[i]) - 9)}\033[0m")
             exit(1)
             
 
