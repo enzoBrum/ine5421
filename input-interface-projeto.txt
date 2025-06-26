@@ -1,18 +1,13 @@
-er1: Hello;[a-z]+
-er2: Bye;[a-z]+
-
 PALAVRA_CHAVE: crie|texto|numero
 
-ID: var[a-zA-Z_][a-zA-Z0-9_]*
+ID: var[a-zA-Z_][a-zA-Z0-9]*
 
 ATRIBUICAO: =
 
-TEXTO_LITERAL: "[^"]*"
+TEXTO_LITERAL: "[A-Za-z0-9]*"
 
 NUMERO_LITERAL: [0-9]+
 
-OP_ARITMETICO: \+
+OP_ARITMETICO: -
 
 PONTO_VIRGULA: ;
-
-WS: [ \t\n\r]+

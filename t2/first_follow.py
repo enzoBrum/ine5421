@@ -1,8 +1,8 @@
 from collections import defaultdict
+from string import ascii_lowercase, ascii_uppercase
 
 
 def tokenize_production(production):
-    production = production.replace(' ', '')
     tokens = []
     i = 0
     while i < len(production):
@@ -13,20 +13,15 @@ def tokenize_production(production):
             i += 1
             continue
 
-        # Special operator ::= (must come before ':' or '=')
-        if production[i:i+3] == '::=':
-            tokens.append('::=')
-            i += 3
-
         # One-character terminal symbols
-        elif c in '()+-=*;,':  # add/remove symbols as needed
+        elif c in '()+-=*;,<>':  # add/remove symbols as needed
             tokens.append(c)
             i += 1
 
         # Terminal: lowercase sequences [a-z]+
         elif c.islower():
             start = i
-            while i < len(production) and production[i].islower():
+            while i < len(production) and (production[i].islower() or production[i] == '_'):
                 i += 1
             tokens.append(production[start:i])
 

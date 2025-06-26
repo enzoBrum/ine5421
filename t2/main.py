@@ -13,7 +13,6 @@ productions = {
 item_inicial = ("E'", ['E'], 0)
 estados = [closure([item_inicial], productions)]
 estados = build_canonical_collection(estados, productions)
-
 # Exibe os estados
 for idx, estado in enumerate(estados):
     print(f"\nEstado {idx:3}:")

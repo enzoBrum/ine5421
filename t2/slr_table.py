@@ -87,15 +87,15 @@ class SlrTable:
                         terminal_symbols.add(token)
 
         
-        visited = set()
         for nt in non_terminal_symbols:
             # first_sets é mutável...
+            visited = set()
             compute_first(nt, first_sets, terminal_symbols, productions, visited)
             
         first_sets_tmp = deepcopy(first_sets)
-        visited = set()
         for nt in non_terminal_symbols:
             # first_sets e follow_sets são mutáveis...
+            visited = set()
             compute_follow(nt, start_symbol, first_sets_tmp, follow_sets, productions, terminal_symbols, visited)
             
         return first_sets, follow_sets

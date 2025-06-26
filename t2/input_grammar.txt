@@ -1,9 +1,9 @@
-<programa> ::= <lista_declaracoes>
+programa ::= lista_declaracoes
 
-<lista_declaracoes> ::= <declaracao> | <declaracao><lista_declaracoes>
+lista_declaracoes ::= declaracao | declaracao lista_declaracoes
 
-<declaracao> ::= PALAVRA_CHAVE ID ATRIBUICAO <expressao> PONTO_VIRGULA
+declaracao ::= PALAVRA_CHAVE ID ATRIBUICAO expressao PONTO_VIRGULA
 
-<expressao> ::= <termo> | <termo> OP_ARITMETICO <termo>
+expressao ::= termo | termo OP_ARITMETICO termo
 
-<termo> ::= ID | TEXTO_LITERAL | NUMERO_LITERAL
+termo ::= ID | TEXTO_LITERAL | NUMERO_LITERAL

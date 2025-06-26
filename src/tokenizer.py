@@ -28,7 +28,7 @@ def classify(finite_automaton: FiniteAutomaton, word: str) -> str:
 
 
 def get_symbol_table(finite_automaton: FiniteAutomaton, words: list[str]) -> str:
-    return [f"<{w.strip()}, {classify(finite_automaton, w.strip())}>" for w in words]
+    return [f"<{classify(finite_automaton, w.strip())}, {w.strip()}>" for w in words]
 
 
 if __name__ == "__main__":

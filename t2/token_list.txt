@@ -1,5 +1,12 @@
-<id,0>
-<*,0>
-<FOO,1>
-<+,0>
-<id,2>
+<PALAVRA_CHAVE, crie>
+<ID, varNome>
+<ATRIBUICAO, =>
+<TEXTO_LITERAL, "Maria">
+<PONTO_VIRGULA, ;>
+<PALAVRA_CHAVE, crie>
+<ID, varA>
+<ATRIBUICAO, =>
+<NUMERO_LITERAL, 1>
+<OP_ARITMETICO, ->
+<NUMERO_LITERAL, 2>
+<PONTO_VIRGULA, ;>
