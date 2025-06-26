@@ -2,6 +2,7 @@ from collections import defaultdict
 
 
 def tokenize_production(production):
+    production = production.replace(' ', '')
     tokens = []
     i = 0
     while i < len(production):

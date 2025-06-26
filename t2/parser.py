@@ -42,7 +42,7 @@ def parse(table: SlrTable, token_list: list[str]):
             with open(".error-logs.txt", "w") as f:
                 f.write(error)
 
-            print(f"Erro durante o parsing! O símbolo {cur} não é ação válida para o estado {s}.")
+            print(f"Erro durante o parsing! O lexema {cur} não é ação válida para o estado {s}.")
             print(' '.join(token_types))
             spaces = 0
             for j in range(i):
