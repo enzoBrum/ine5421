@@ -36,10 +36,10 @@ if __name__ == "__main__":
         determinized_automato = FiniteAutomaton.loads(f.read())
 
     with open(FILE_INPUT, "r") as f:
-        words = [line.strip() for line in f.readlines() if line]
+        words = [word for line in f for word in line.strip().split() if word]
 
     out = "\n".join(get_symbol_table(determinized_automato, words))
     print(out)
-    
+
     with open(FILE_OUTPUT, "w") as f:
         f.write(out)

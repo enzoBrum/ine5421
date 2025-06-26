@@ -7,3 +7,7 @@ abcd
 vrenowpq
 1234
 Hello;123
+
+crie varNome = "Maria" ;
+crie varIdade = 25 ;
+crie varNovaIdade = varIdade + 5 ;

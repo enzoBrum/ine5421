@@ -1,5 +1,3 @@
-# slr_utils.py
-
 def item_in_list(item, items):
     for existing in items:
         if existing[0] == item[0] and existing[1] == item[1] and existing[2] == item[2]:
@@ -48,7 +46,7 @@ def estado_em_lista(estado, lista_estados):
 
 def build_canonical_collection(estados, productions):
     transicoes  = []
-    
+
     i = 0
     while i < len(estados):
         estado_atual = estados[i]
@@ -72,4 +70,3 @@ def build_canonical_collection(estados, productions):
                 transicoes.append((i, simbolo, indice_existente))
         i += 1
     return estados
-

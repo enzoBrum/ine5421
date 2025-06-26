@@ -1,3 +1,9 @@
-E ::= E+T | T
-T ::= T*F | F
-F ::= (E) | id
+<programa> ::= <lista_declaracoes>
+
+<lista_declaracoes> ::= <declaracao> | <declaracao><lista_declaracoes>
+
+<declaracao> ::= PALAVRA_CHAVE ID ATRIBUICAO <expressao> PONTO_VIRGULA
+
+<expressao> ::= <termo> | <termo> OP_ARITMETICO <termo>
+
+<termo> ::= ID | TEXTO_LITERAL | NUMERO_LITERAL
