@@ -9,7 +9,7 @@ TOKEN_LIST = "./token_list.txt"
 
 with open(SLR_TABLE) as f:
     table = SlrTable.loads(f.read().strip())
-    
+
 with open(TOKEN_LIST) as f:
     token_list = [x.strip() for x in f.readlines() if x.strip()]
 

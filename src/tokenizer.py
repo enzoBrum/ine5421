@@ -9,7 +9,8 @@ FILE_AUTOMATO = "output-interface-projeto.txt"
 FILE_INPUT = "input.txt"
 
 # Arquivo onde o resultado da analise será escrito.
-FILE_OUTPUT = "output.txt"
+FILE_SYMBOL_TABLE = "symbol_table.txt"
+FILE_TOKEN_LIST = "token_list.txt"
 
 def classify(finite_automaton: FiniteAutomaton, word: str) -> str:
     state = finite_automaton.initial_state
@@ -26,9 +27,31 @@ def classify(finite_automaton: FiniteAutomaton, word: str) -> str:
         else next(iter(finite_automaton.final_states_to_pattern[state]))
     )
 
-
 def get_symbol_table(finite_automaton: FiniteAutomaton, words: list[str]) -> str:
-    return [f"<{classify(finite_automaton, w.strip())}, {w.strip()}>" for w in words]
+    line_counter = 1
+    added_token = {}
+
+    tokens = []
+    symbol_table = []
+    for word in words:
+        att_value = word.strip()
+        classification = classify(finite_automaton, att_value)
+
+        if att_value not in added_token.keys():
+            new_att = {}
+            new_att["line"] = line_counter
+
+            new_att["classification"] = classification
+
+            symbol_table.append(str(line_counter) + ": " + att_value)
+
+            added_token[att_value] = new_att
+            line_counter += 1
+
+        tokens.append(f"<{classification}, {added_token[att_value]['line']}>")
+
+
+    return symbol_table, tokens
 
 
 if __name__ == "__main__":
@@ -38,8 +61,16 @@ if __name__ == "__main__":
     with open(FILE_INPUT, "r") as f:
         words = [word for line in f for word in line.strip().split() if word]
 
-    out = "\n".join(get_symbol_table(determinized_automato, words))
-    print(out)
+    symbol_table, tokens = get_symbol_table(determinized_automato, words)
 
-    with open(FILE_OUTPUT, "w") as f:
-        f.write(out)
+    symbol_table = "\n".join(symbol_table)
+    tokens = "\n".join(tokens)
+
+    print_result = "====== Tabela de Símbolos ======\n" + symbol_table + "\n\n" + "====== Lista de Tokens ======\n" + tokens
+    print(print_result)
+
+    with open(FILE_SYMBOL_TABLE, "w") as f:
+        f.write(symbol_table)
+
+    with open(FILE_TOKEN_LIST, "w") as f:
+        f.write(tokens)
